@@ -6,7 +6,7 @@ import * as anchor from '@coral-xyz/anchor';
 import { IDL, TokenLottery } from '@/idl/token_lottery';
 import { PROGRAM_ID, AUTHORITY_PUBLIC_KEY, MOCK_WINNER_PUBLIC_KEY } from '@/lib/constants';
 import { useToast } from './use-toast';
-import { LAMPORTS_PER_SOL } from '@solana/web3.js';
+import { LAMPORTS_PER_SOL, PublicKey } from '@solana/web3.js';
 
 // Mock data for UI development without a live program
 const MOCK_LOTTERY_DATA = {
@@ -21,12 +21,20 @@ const MOCK_LOTTERY_DATA = {
   randomnessPending: false,
 };
 
+const MOCK_RECENT_WINNERS = [
+    { lotteryId: 123, winner: "5q2g...f3x", prize: 50 * LAMPORTS_PER_SOL },
+    { lotteryId: 122, winner: "E2rT...u7y", prize: 75 * LAMPORTS_PER_SOL },
+    { lotteryId: 121, winner: "9iNf...sKq", prize: 120 * LAMPORTS_PER_SOL },
+    { lotteryId: 120, winner: "H4vB...pLz", prize: 95 * LAMPORTS_PER_SOL },
+];
+
 export function useLottery() {
   const { connection } = useConnection();
   const { publicKey, sendTransaction } = useWallet();
   const { toast } = useToast();
   const [program, setProgram] = useState<anchor.Program<TokenLottery> | null>(null);
   const [lotteryData, setLotteryData] = useState(MOCK_LOTTERY_DATA);
+  const [recentWinners, setRecentWinners] = useState(MOCK_RECENT_WINNERS);
   const [loading, setLoading] = useState(false);
 
   const isAuthority = useMemo(() => {
@@ -125,6 +133,7 @@ export function useLottery() {
   return {
     program,
     lotteryData,
+    recentWinners,
     loading,
     isAuthority,
     isWinner,

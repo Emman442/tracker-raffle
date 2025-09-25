@@ -1,4 +1,5 @@
 import LotteryStatus from "@/components/LotteryStatus";
+import RecentWinners from "@/components/RecentWinners";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Home() {
@@ -14,6 +15,10 @@ export default function Home() {
       </div>
       
       <LotteryStatus />
+
+      <div className="mt-12">
+        <RecentWinners />
+      </div>
       
     </div>
   );
