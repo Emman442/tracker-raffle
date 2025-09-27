@@ -1,6 +1,4 @@
 "use client";
-
-import { useLottery } from "@/hooks/useLottery";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Award, Medal } from "lucide-react";
@@ -8,7 +6,12 @@ import { motion } from "framer-motion";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 export default function RecentWinners() {
-    const { recentWinners } = useLottery();
+    // const { recentWinners } = useLottery();
+    const recentWinners = [{
+        lotteryId: "123",
+        prize: 20,
+        winner: "49y...kp"
+    }]
 
     const containerVariants = {
         hidden: { opacity: 0, y: 20 },

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { motion } from "framer-motion";
 import { Ticket, User, Award, HomeIcon } from "lucide-react";
+import Image from "next/image";
 
 const navLinks = [
   { href: "/", label: "Home", icon: HomeIcon },
@@ -14,18 +14,18 @@ const navLinks = [
 
 export default function Header() {
   return (
-    <motion.header
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ type: "spring", stiffness: 50 }}
-      className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-    >
+    <div className="sticky top-0 flex h-16 md:h-20 items-center gap-4 px-3 md:px-6 z-50 bg-background/80 backdrop-blur-sm">
       <div className="container flex h-14 items-center">
         <div className="mr-4 hidden md:flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Ticket className="h-6 w-6 text-primary" />
+            <Image
+              src={"/favico.png"}
+              alt="Tracker Image"
+              width={35}
+              height={35}
+            />
             <span className="hidden font-bold sm:inline-block">
-              SolLottery
+              TRACKER LOTTERY
             </span>
           </Link>
           <nav className="flex items-center space-x-6 text-sm font-medium">
@@ -33,7 +33,7 @@ export default function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="transition-colors hover:text-primary"
+                className="transition-colors hover:text-primary text-white"
               >
                 {link.label}
               </Link>
@@ -41,9 +41,19 @@ export default function Header() {
           </nav>
         </div>
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <WalletMultiButton />
+          <WalletMultiButton
+            style={{
+              background: "transparent",
+              height: "36px",
+              fontSize: "12px",
+              borderRadius: "8px",
+              cursor: "pointer",
+              color: "#00E6B8",
+              border: "1px solid #00E6B8",
+            }}
+          />
         </div>
       </div>
-    </motion.header>
+    </div>
   );
 }

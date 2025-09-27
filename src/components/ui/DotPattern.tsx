@@ -15,7 +15,7 @@ export function DotPattern({ className }: { className?: string }) {
                     height="40"
                     patternUnits="userSpaceOnUse"
                 >
-                    <path d="M0 40L40 40L40 0" fill="none" className="stroke-border/20" strokeWidth="1"/>
+                    <path d="M0 40L40 40L40 0" fill="none" className="stroke-border/20" strokeWidth="3"/>
                 </pattern>
             </defs>
             <rect width="100%" height="100%" fill={`url(#${id})`}></rect>
