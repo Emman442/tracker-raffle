@@ -15,21 +15,26 @@ import { useProgram } from "@/hooks/use-program";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import * as anchor from "@coral-xyz/anchor";
 import { TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
 import { TOKEN_METADATA_PROGRAM_ID } from "@/constants/constants";
 import { toast } from "sonner";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
+import {ON_DEMAND_DEVNET_PID, Queue, Randomness, asV0Tx, } from "@switchboard-xyz/on-demand"
 
 export default function AdminPanel() {
-  const { connected } = useWallet();
+  const { connected, publicKey, sendTransaction } = useWallet();
   const {connection } = useConnection();
-  const [loading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(false);
   const [isInitializingLottery, setIsInitializingLottery] = useState(false);
   const [isCommitingWinner, setIsCommitingWinner] = useState(false);
   const [isChoosingWinner, setIsChoosingWinner] = useState(false);
+  const [switchboardProgram, setSwitchboardProgram] = useState<any>(null);
+  const [queueAccount, setQueueAccount] = useState<any>(null);
+  const [queue, setQueue] = useState<any>(null)
+  const rngKp = anchor.web3.Keypair.generate();
+  const [randomnessAccount, setRandomnessAccount] = useState<any>(null);
   const [config, setConfig] = useState({
     startTime: Date.now(),
     endTime: Date.now() + 86400000,
@@ -57,6 +62,73 @@ export default function AdminPanel() {
   // if (!isAuthority) {
   //   return <Card className="max-w-md mx-auto"><CardHeader><CardTitle>Access Denied</CardTitle><CardDescription>Your wallet does not have authority permissions.</CardDescription></CardHeader></Card>;
   // }
+    //  const switchboardIDL = await anchor.Program.fetchIdl(
+    //    ON_DEMAND_DEVNET_PID,
+    //    {
+    //      connection: connection
+    //    }
+    //  );
+    //  const switchboardProgram = new anchor.Program(switchboardIDL, provider);
+      // const queue = new anchor.web3.PublicKey(
+      //   "EYiAmGSdsQTuCw413V5BzaruWuCCSDgTPtBGvLkXHbe7"
+      // ); //devnet
+
+      // const queueAccount = new Queue(switchboardProgram, queue);
+      // console.log("Queue account", queue.toString());
+      // try {
+      //   await queueAccount.loadData();
+      // } catch (err) {
+      //   console.log("Queue account not found");
+      //   process.exit(1);
+      // }
+
+      // const [randomnessAccount, ix] = await Randomness.create(
+      //   switchboardProgram,
+      //   rngKp,
+      //   queue
+      // );
+
+      useEffect(() => {
+        const initSwitchboard = async () => {
+          if (!provider || !connection) return;
+
+          try {
+            const switchboardIDL = await anchor.Program.fetchIdl(
+              ON_DEMAND_DEVNET_PID,
+              { connection }
+            );
+
+            if(!switchboardIDL) return;
+
+            const sbProgram = new anchor.Program(switchboardIDL, provider);
+            setSwitchboardProgram(sbProgram);
+
+            const queue = new anchor.web3.PublicKey(
+              "EYiAmGSdsQTuCw413V5BzaruWuCCSDgTPtBGvLkXHbe7"
+            );
+            setQueue(queue)
+
+            const qAccount = new Queue(sbProgram, queue);
+            await qAccount.loadData();
+            setQueueAccount(qAccount);
+
+            // NOTE: rngKp must be defined before this
+            const [randAccount, ix] = await Randomness.create(
+              sbProgram,
+              rngKp,
+              queue
+            );
+            setRandomnessAccount(randAccount);
+
+            console.log("Switchboard ready ✅");
+          } catch (err) {
+            console.error("Failed to init Switchboard", err);
+          }
+        };
+
+        initSwitchboard();
+      }, [provider, connection]);
+     
 
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setConfig((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -208,13 +280,116 @@ export default function AdminPanel() {
     }
   };
 
-  const handleCommitWinner = async () => {
+const handleCommitWinner = async () => {
+  if (
+    !program ||
+    !randomnessAccount ||
+    !switchboardProgram ||
+    !publicKey
+  )
+    return;
+  try {
+    setIsCommitingWinner(true);
+
+    // 1. Switchboard commit instruction
+    const sbCommitIx = await randomnessAccount.commitIx(queue);
+
+    // 2. Your program commit instruction
+    const commitIx = await program.methods
+      .commitAWinner()
+      .accounts({
+        randomnessAccount: randomnessAccount.pubkey,
+        //@ts-ignore
+        tokenProgram: TOKEN_PROGRAM_ID,
+      })
+      .instruction();
+
+    // 3. Build transaction
+    const blockhash = await connection.getLatestBlockhash();
+    const tx = new anchor.web3.Transaction({
+      feePayer: publicKey,
+      blockhash: blockhash.blockhash,
+      lastValidBlockHeight: blockhash.lastValidBlockHeight,
+    })
+      .add(sbCommitIx)
+      .add(commitIx);
+
+    // 4. Sign + send with wallet-adapter
+    const sig = await sendTransaction(tx, connection);
+    await connection.confirmTransaction(sig, "confirmed");
+
+    toast.success("Winner committed!", {
+      cancel: {
+        label: "View Transaction",
+        onClick: () => window.open(`https://solscan.io/tx/${sig}`, "_blank"),
+      },
+    });
+  } catch (err) {
+    console.error("Error committing winner:", err);
+    toast.error("Failed to commit winner");
+  } finally {
+    setIsCommitingWinner(false);
+  }
+};
+
+  // const handleCommitWinner = async () => {
+  //   if (!program) return;
+  //   try {
+  //     setIsCommitingWinner(true);
+
+  //     const tx = await program.methods
+  //       .commitAWinner()
+  //       .accounts({
+  //         //@ts-ignore
+  //         masterEdition: masterEdition,
+  //         metadata: metadata,
+  //         tokenProgram: TOKEN_PROGRAM_ID,
+  //       })
+  //       .rpc();
+
+  //     await new Promise((resolve) => setTimeout(resolve, 2000));
+
+  //     const txDetails = await connection.getTransaction(tx, {
+  //       commitment: "confirmed",
+  //       maxSupportedTransactionVersion: 0,
+  //     });
+
+  //     if (!txDetails) {
+  //       throw new Error("Transaction not found or not confirmed");
+  //     }
+
+  //     const logs = txDetails?.meta?.logMessages;
+  //     const eventLog = logs?.find((l) => l.startsWith("Program data:"));
+
+  //     if (eventLog) {
+  //       const encoded = eventLog.replace("Program data: ", "");
+  //       const decoded = program.coder.events.decode(encoded);
+
+  //       if (decoded?.name === "winnerCommited") {
+  //         toast.success("Winner Commited Successfully!", {
+  //           cancel: {
+  //             label: "View Transaction",
+  //             onClick: () =>
+  //               window.open(`https://solscan.io/tx/${tx}`, "_blank"),
+  //           },
+  //         });
+  //         return;
+  //       }
+  //     }
+  //   } catch (err) {
+  //     console.error("Error Choosing Winner:", err);
+  //     toast.error("Something went wrong while commiting winner");
+  //   } finally {
+  //     setIsCommitingWinner(false);
+  //   }
+  // };
+  const handleChooseWinner = async () => {
     if (!program) return;
     try {
-      setIsCommitingWinner(true);
+      setIsChoosingWinner(true);
 
       const tx = await program.methods
-        .commitAWinner()
+        .chooseWinner()
         .accounts({
           //@ts-ignore
           masterEdition: masterEdition,
@@ -241,8 +416,8 @@ export default function AdminPanel() {
         const encoded = eventLog.replace("Program data: ", "");
         const decoded = program.coder.events.decode(encoded);
 
-        if (decoded?.name === "Commited Winner") {
-          toast.success("Winner Commited Successfully!", {
+        if (decoded?.name === "selectWinner") {
+          toast.success("Winner Chosen Successfully!", {
             cancel: {
               label: "View Transaction",
               onClick: () =>
@@ -253,10 +428,10 @@ export default function AdminPanel() {
         }
       }
     } catch (err) {
-      console.error("Error Initializing Lottery:", err);
-      toast.error("Something went wrong while Initializing Lottery");
+      console.error("Error Choosing Winner:", err);
+      toast.error("Something went wrong while choosing winner");
     } finally {
-      setIsCommitingWinner(false);
+      setIsChoosingWinner(false);
     }
   };
 
@@ -354,10 +529,10 @@ export default function AdminPanel() {
           <CardContent>
             <Button
               onClick={handleInitializeLottery}
-              disabled={loading}
+              disabled={isInitializingLottery}
               className="w-full"
             >
-              {loading ? (
+              {isInitializingLottery ? (
                 <Loader2 className="animate-spin" />
               ) : (
                 "Initialize Lottery"
@@ -382,11 +557,11 @@ export default function AdminPanel() {
           </CardHeader>
           <CardContent className="space-y-4">
             <Button
-              // onClick={commitAWinner}
-              disabled={loading}
+              onClick={handleCommitWinner}
+              disabled={isCommitingWinner}
               className="w-full"
             >
-              {loading ? (
+              {isCommitingWinner ? (
                 <Loader2 className="animate-spin" />
               ) : (
                 "Commit a Winner"
@@ -414,18 +589,18 @@ export default function AdminPanel() {
               <div className="text-center text-primary">
                 <p>Winner has been chosen!</p>
                 <p className="font-mono text-xs mt-2 break-all">
-                  {/* {lotteryData.winner} */}
-
+                  {/* {lotteryData?.winner} */}
+                  {/* {cu} */}
                   {"4y9....kp"}
                 </p>
               </div>
             ) : (
               <Button
-                // onClick={chooseWinner}
-                disabled={loading}
+                onClick={handleChooseWinner}
+                disabled={isChoosingWinner}
                 className="w-full"
               >
-                {loading ? (
+                {isChoosingWinner? (
                   <Loader2 className="animate-spin" />
                 ) : (
                   "Choose Winner"

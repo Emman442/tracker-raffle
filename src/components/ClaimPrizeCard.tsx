@@ -76,8 +76,8 @@ export default function ClaimPrizeCard() {
         }
       }
     } catch (err) {
-      console.error("Error Initializing Config:", err);
-      toast.error("Something went wrong while Initializing the configuration");
+      console.error("Error claiming Winnings:", err);
+      toast.error("Something went wrong while Claiming Winnings");
     } finally {
       setIsClaimingPrize(false);
     }
