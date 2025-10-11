@@ -2,12 +2,12 @@
  * Program IDL in camelCase format in order to be used in JS/TS.
  *
  * Note that this is only a type helper and is not the actual IDL. The original
- * IDL can be found at `target/idl/token_lottery.json`.
+ * IDL can be found at `target/idl/raffle.json`.
  */
-export type TokenLottery = {
-    "address": "FhTuNSDqeiUo4aLWqVEztYah4YdRPEC679U51CvQRQZD",
+export type Raffle = {
+    "address": "47EsfkJnYeZVuf3WTfzE5a2V5RSnaHm3GhTs8QcA3ah8",
     "metadata": {
-        "name": "tokenLottery",
+        "name": "raffle",
         "version": "0.1.0",
         "spec": "0.1.0",
         "description": "Created with Anchor"
@@ -58,6 +58,70 @@ export type TokenLottery = {
                     }
                 },
                 {
+                    "name": "payerTokenAccount",
+                    "writable": true
+                },
+                {
+                    "name": "raffleVaultAccount",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "account",
+                                "path": "tokenLottery"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "tokenProgram"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "tokenMint"
+                            }
+                        ],
+                        "program": {
+                            "kind": "const",
+                            "value": [
+                                140,
+                                151,
+                                37,
+                                143,
+                                78,
+                                36,
+                                137,
+                                241,
+                                187,
+                                61,
+                                16,
+                                41,
+                                20,
+                                142,
+                                13,
+                                131,
+                                11,
+                                90,
+                                19,
+                                153,
+                                218,
+                                255,
+                                16,
+                                132,
+                                4,
+                                142,
+                                123,
+                                216,
+                                219,
+                                233,
+                                248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "tokenMint"
+                },
+                {
                     "name": "ticketMint",
                     "writable": true,
                     "pda": {
@@ -100,6 +164,63 @@ export type TokenLottery = {
                         "program": {
                             "kind": "account",
                             "path": "tokenMetadataProgram"
+                        }
+                    }
+                },
+                {
+                    "name": "destination",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "account",
+                                "path": "payer"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "tokenProgram"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "ticketMint"
+                            }
+                        ],
+                        "program": {
+                            "kind": "const",
+                            "value": [
+                                140,
+                                151,
+                                37,
+                                143,
+                                78,
+                                36,
+                                137,
+                                241,
+                                187,
+                                61,
+                                16,
+                                41,
+                                20,
+                                142,
+                                13,
+                                131,
+                                11,
+                                90,
+                                19,
+                                153,
+                                218,
+                                255,
+                                16,
+                                132,
+                                4,
+                                142,
+                                123,
+                                216,
+                                219,
+                                233,
+                                248,
+                                89
+                            ]
                         }
                     }
                 },
@@ -231,63 +352,6 @@ export type TokenLottery = {
                     "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
                 },
                 {
-                    "name": "destination",
-                    "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "account",
-                                "path": "payer"
-                            },
-                            {
-                                "kind": "account",
-                                "path": "tokenProgram"
-                            },
-                            {
-                                "kind": "account",
-                                "path": "ticketMint"
-                            }
-                        ],
-                        "program": {
-                            "kind": "const",
-                            "value": [
-                                140,
-                                151,
-                                37,
-                                143,
-                                78,
-                                36,
-                                137,
-                                241,
-                                187,
-                                61,
-                                16,
-                                41,
-                                20,
-                                142,
-                                13,
-                                131,
-                                11,
-                                90,
-                                19,
-                                153,
-                                218,
-                                255,
-                                16,
-                                132,
-                                4,
-                                142,
-                                123,
-                                216,
-                                219,
-                                233,
-                                248,
-                                89
-                            ]
-                        }
-                    }
-                },
-                {
                     "name": "collectionMint",
                     "writable": true,
                     "pda": {
@@ -412,58 +476,43 @@ export type TokenLottery = {
             "args": []
         },
         {
-            "name": "chooseWinner",
+            "name": "callbackChooseWinner",
             "discriminator": [
-                94,
-                248,
-                225,
-                4,
-                43,
-                60,
+                204,
+                21,
+                207,
+                229,
                 118,
-                243
+                187,
+                143,
+                149
             ],
             "accounts": [
                 {
-                    "name": "payer",
-                    "writable": true,
-                    "signer": true
+                    "name": "vrfProgramIdentity",
+                    "docs": [
+                        "This check ensure that the vrf_program_identity (which is a PDA) is a singer",
+                        "enforcing the callback is executed by the VRF program trough CPI"
+                    ],
+                    "signer": true,
+                    "address": "9irBy75QS2BN81FUgXuHcjqceJJRuc9oDkAe8TKVvvAw"
                 },
                 {
                     "name": "tokenLottery",
-                    "writable": true,
-                    "pda": {
-                        "seeds": [
-                            {
-                                "kind": "const",
-                                "value": [
-                                    116,
-                                    111,
-                                    107,
-                                    101,
-                                    110,
-                                    95,
-                                    108,
-                                    111,
-                                    116,
-                                    116,
-                                    101,
-                                    114,
-                                    121
-                                ]
-                            }
-                        ]
-                    }
-                },
-                {
-                    "name": "randomnessAccountData"
-                },
-                {
-                    "name": "systemProgram",
-                    "address": "11111111111111111111111111111111"
+                    "writable": true
                 }
             ],
-            "args": []
+            "args": [
+                {
+                    "name": "randomness",
+                    "type": {
+                        "array": [
+                            "u8",
+                            32
+                        ]
+                    }
+                }
+            ]
         },
         {
             "name": "claimWinnings",
@@ -508,6 +557,70 @@ export type TokenLottery = {
                             }
                         ]
                     }
+                },
+                {
+                    "name": "rewardMint"
+                },
+                {
+                    "name": "rewardVault",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "account",
+                                "path": "tokenLottery"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "tokenProgram"
+                            },
+                            {
+                                "kind": "account",
+                                "path": "rewardMint"
+                            }
+                        ],
+                        "program": {
+                            "kind": "const",
+                            "value": [
+                                140,
+                                151,
+                                37,
+                                143,
+                                78,
+                                36,
+                                137,
+                                241,
+                                187,
+                                61,
+                                16,
+                                41,
+                                20,
+                                142,
+                                13,
+                                131,
+                                11,
+                                90,
+                                19,
+                                153,
+                                218,
+                                255,
+                                16,
+                                132,
+                                4,
+                                142,
+                                123,
+                                216,
+                                219,
+                                233,
+                                248,
+                                89
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "winnerTokenAccount",
+                    "writable": true
                 },
                 {
                     "name": "collectionMint",
@@ -685,16 +798,16 @@ export type TokenLottery = {
             "args": []
         },
         {
-            "name": "commitAWinner",
+            "name": "commitWinner",
             "discriminator": [
-                142,
-                122,
-                254,
-                195,
-                220,
-                205,
-                224,
-                236
+                66,
+                108,
+                203,
+                58,
+                168,
+                20,
+                82,
+                15
             ],
             "accounts": [
                 {
@@ -729,14 +842,49 @@ export type TokenLottery = {
                     }
                 },
                 {
-                    "name": "randomnessAccount"
+                    "name": "oracleQueue",
+                    "writable": true,
+                    "address": "Cuj97ggrhhidhbu39TijNVqE74xvKJ69gDervRUXAxGh"
                 },
                 {
                     "name": "systemProgram",
                     "address": "11111111111111111111111111111111"
+                },
+                {
+                    "name": "programIdentity",
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    105,
+                                    100,
+                                    101,
+                                    110,
+                                    116,
+                                    105,
+                                    116,
+                                    121
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "vrfProgram",
+                    "address": "Vrf1RNUjXmQGjmQrQLvJHs9SNkvDJEsRVFPkfSQUwGz"
+                },
+                {
+                    "name": "slotHashes",
+                    "address": "SysvarS1otHashes111111111111111111111111111"
                 }
             ],
-            "args": []
+            "args": [
+                {
+                    "name": "clientSeed",
+                    "type": "u8"
+                }
+            ]
         },
         {
             "name": "initializeConfig",
@@ -797,7 +945,7 @@ export type TokenLottery = {
                     "type": "u64"
                 },
                 {
-                    "name": "prize",
+                    "name": "price",
                     "type": "u64"
                 }
             ]
@@ -987,6 +1135,65 @@ export type TokenLottery = {
                 }
             ],
             "args": []
+        },
+        {
+            "name": "restartLottery",
+            "discriminator": [
+                108,
+                227,
+                99,
+                131,
+                243,
+                47,
+                187,
+                86
+            ],
+            "accounts": [
+                {
+                    "name": "tokenLottery",
+                    "writable": true,
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    116,
+                                    111,
+                                    107,
+                                    101,
+                                    110,
+                                    95,
+                                    108,
+                                    111,
+                                    116,
+                                    116,
+                                    101,
+                                    114,
+                                    121
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "authority",
+                    "signer": true
+                }
+            ],
+            "args": [
+                {
+                    "name": "newStartTime",
+                    "type": "u64"
+                },
+                {
+                    "name": "newEndTime",
+                    "type": "u64"
+                },
+                {
+                    "name": "newTicketPrice",
+                    "type": "u64"
+                }
+            ]
         }
     ],
     "accounts": [
@@ -1241,10 +1448,6 @@ export type TokenLottery = {
                     {
                         "name": "bump",
                         "type": "u8"
-                    },
-                    {
-                        "name": "randomnessAccount",
-                        "type": "pubkey"
                     }
                 ]
             }
@@ -1255,7 +1458,7 @@ export type TokenLottery = {
                 "kind": "struct",
                 "fields": [
                     {
-                        "name": "randomnessAccount",
+                        "name": "oracleQueue",
                         "type": "pubkey"
                     }
                 ]

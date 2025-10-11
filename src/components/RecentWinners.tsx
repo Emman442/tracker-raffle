@@ -47,7 +47,7 @@ export default function RecentWinners() {
                             <TableRow>
                                 <TableHead className="w-[100px]">Lottery ID</TableHead>
                                 <TableHead>Winner</TableHead>
-                                <TableHead className="text-right">Prize Amount (SOL)</TableHead>
+                                <TableHead className="text-right">Prize Amount ($TRACKER)</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

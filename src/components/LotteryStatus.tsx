@@ -7,7 +7,6 @@ import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useProgram } from "@/hooks/use-program";
 
-
 const InfoCard = ({
   icon,
   title,
@@ -87,51 +86,54 @@ const Countdown = ({ endTime }: { endTime: string }) => {
 };
 
 export default function LotteryStatus() {
-   const [currentLottery, setCurrentLottery] = useState<any | null>(null);
-   const { program } = useProgram();
-
-   const lotteryData = { status: "Open", ticketsSold: 200, prize: 1 };
+  const [currentLottery, setCurrentLottery] = useState<any | null>(null);
+  const { program } = useProgram();
   //  if (!program) return <>loading...</>;
 
+  const lotteryPDA = useMemo(() => {
+    if (!program) return null;
+    try {
+      const [pda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("token_lottery")],
+        program.programId
+      );
+      return pda;
+    } catch (error) {
+      console.error("Error calculating rewardVaultPda:", error);
+      return null;
+    }
+  }, [program]);
 
-   const lotteryPDA = useMemo(() => {
-     if (!program) return null;
-     try {
-       const [pda] = PublicKey.findProgramAddressSync(
-         [Buffer.from("token_lottery")],
-         program.programId
-       );
-       return pda;
-     } catch (error) {
-       console.error("Error calculating rewardVaultPda:", error);
-       return null;
-     }
-   }, [program]);
+  const fetchLotteryDetails = useCallback(async () => {
+    if (!program) return;
+    try {
+      const account = await program.account.tokenLottery.fetch(lotteryPDA!);
 
-   const fetchLotteryDetails = useCallback(async () => {
-     if (!program) return;
-     try {
-       const account = await program.account.tokenLottery.fetch(lotteryPDA!);
-       console.log("account: ",account)
-       setCurrentLottery(account);
-     } catch (err) {
-       console.error("Error fetching lottery details:", err);
-     }
-   }, [program, lotteryPDA]);
+      if (!account) {
+        console.warn("No lottery found on-chain yet.");
+        setCurrentLottery(null);
+        return;
+      }
+      console.log("account: ", account);
+      setCurrentLottery(account);
+    } catch (err) {
+      console.error("Error fetching lottery details:", err);
+    }
+  }, [program, lotteryPDA]);
 
-   useEffect(() => {
-     fetchLotteryDetails();
-   }, [fetchLotteryDetails]);
+  useEffect(() => {
+    fetchLotteryDetails();
+  }, [fetchLotteryDetails]);
 
-   console.log(currentLottery)
+  console.log(currentLottery);
 
-   const containerVariants = {
-     hidden: { opacity: 0 },
-     visible: {
-       opacity: 1,
-       transition: { staggerChildren: 0.1 },
-     },
-   };
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1 },
+    },
+  };
 
   return (
     <motion.div
@@ -143,8 +145,8 @@ export default function LotteryStatus() {
       <InfoCard
         icon={<Banknote className="h-4 w-4 text-muted-foreground" />}
         title="Prize Pool"
-        value={currentLottery?.potAmount.toNumber()/LAMPORTS_PER_SOL || 0}
-        unit="SOL"
+        value={currentLottery?.potAmount.toNumber() / LAMPORTS_PER_SOL || 0}
+        unit="TRACKER"
       />
       <InfoCard
         icon={<Ticket className="h-4 w-4 text-muted-foreground" />}
@@ -156,26 +158,50 @@ export default function LotteryStatus() {
         title="Lottery Status"
         value={
           <Badge
-            variant={currentLottery?.winnerChosen === "Open" ? "default" : "destructive"}
+            variant={
+              currentLottery?.winnerChosen === "Open"
+                ? "default"
+                : "destructive"
+            }
             className="text-lg bg-primary/20 text-primary border-primary/50"
           >
-            {currentLottery?.winnerChosen ? "Closed": "Open"}
+            {!currentLottery ||
+            currentLottery?.winnerChosen ||
+            !currentLottery?.endTime.toNumber() ||
+            !currentLottery.startTime.toNumber()
+              ? "Closed"
+              : "Open"}
           </Badge>
         }
       />
       <Card className="h-full bg-card/50 backdrop-blur-sm transition-all duration-300 hover:border-primary/50">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium text-muted-foreground">
-            {lotteryData.status=== "Open" ? "Time Remaining" : "Lottery Ended"}
+            {!currentLottery
+              ? "No Active Lottery"
+              : currentLottery.winnerChosen ||
+                Date.now() / 1000 > currentLottery.endTime.toNumber()
+              ? "Lottery Ended"
+              : "Time Remaining"}
           </CardTitle>
           <Calendar className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
+
         <CardContent>
-          {lotteryData.status === 'Open' ? (
-                <Countdown endTime={currentLottery?.endTime.toNumber()} />
-            ) : (
-                <div className="text-2xl font-bold text-primary">Ended</div>
-            )}
+          {!currentLottery ? (
+            <div className="text-2xl font-bold text-muted-foreground">
+              No active lottery
+            </div>
+          ) : currentLottery.winnerChosen ||
+            Date.now() / 1000 > currentLottery.endTime.toNumber() ? (
+            <div className="text-2xl font-bold text-primary">Ended</div>
+          ) : (
+            <Countdown
+              endTime={new Date(
+                currentLottery.endTime.toNumber() * 1000
+              ).toISOString()}
+            />
+          )}
         </CardContent>
       </Card>
     </motion.div>
