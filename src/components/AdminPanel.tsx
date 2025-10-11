@@ -16,7 +16,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import * as anchor from "@coral-xyz/anchor";
 import { TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
-import { TOKEN_METADATA_PROGRAM_ID } from "@/constants/constants";
+import { ADMIN, TOKEN_METADATA_PROGRAM_ID } from "@/constants/constants";
 import { toast } from "sonner";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
@@ -31,17 +31,6 @@ export default function AdminPanel() {
   const [isInitializing, setIsInitializing] = useState(false);
   const [isInitializingLottery, setIsInitializingLottery] = useState(false);
   const [isCommittingWinner, setIsCommittingWinner] = useState(false);
-  const [isChoosingWinner, setIsChoosingWinner] = useState(false);
-
-  const [switchboardProgram, setSwitchboardProgram] = useState<any>(null);
-  const [queueAccount, setQueueAccount] = useState<any>(null);
-  const [queue, setQueue] = useState<anchor.web3.PublicKey | null>(null);
-  const [randomnessKeypair, setRandomnessKeypair] =
-    useState<anchor.web3.Keypair | null>(null);
-  const [randomnessAccountPubkey, setRandomnessAccountPubkey] = useState<
-    string | null
-  >(null);
-
   const [config, setConfig] = useState({
     startTime: Math.floor(Date.now() / 1000),
     endTime: Math.floor((Date.now() + 86400000) / 1000),
@@ -104,6 +93,18 @@ export default function AdminPanel() {
           <CardTitle>Access Denied</CardTitle>
           <CardDescription>
             Please connect your wallet to access the admin panel.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    );
+  }
+  if (publicKey?.toBase58() !== ADMIN.toBase58()) {
+    return (
+      <Card className="max-w-md mx-auto">
+        <CardHeader>
+          <CardTitle>Access Denied</CardTitle>
+          <CardDescription>
+            You do not have permission to access the admin panel.
           </CardDescription>
         </CardHeader>
       </Card>
@@ -409,7 +410,7 @@ export default function AdminPanel() {
             <CardContent className="space-y-4">
               <Button
                 onClick={handleDrawWinner}
-                disabled={isCommittingWinner || !switchboardProgram}
+                disabled={isCommittingWinner}
                 className="w-full"
               >
                 {isCommittingWinner ? (
@@ -421,11 +422,6 @@ export default function AdminPanel() {
                   "Commit Randomness"
                 )}
               </Button>
-              {randomnessAccountPubkey && (
-                <p className="text-xs text-muted-foreground break-all">
-                  Randomness: {randomnessAccountPubkey}
-                </p>
-              )}
             </CardContent>
           </Card>
         </motion.div>
