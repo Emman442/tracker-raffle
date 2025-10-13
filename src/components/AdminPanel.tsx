@@ -16,7 +16,7 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import * as anchor from "@coral-xyz/anchor";
 import { TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
-import { ADMIN, TOKEN_METADATA_PROGRAM_ID } from "@/constants/constants";
+import { ADMIN, TOKEN_METADATA_PROGRAM_ID, TOKEN_MINT_DECIMALS } from "@/constants/constants";
 import { toast } from "sonner";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 
@@ -37,11 +37,7 @@ export default function AdminPanel() {
     prize: 0,
   });
 
-  const [lotteryData, setLotteryData] = useState({
-    isWinnerChosen: false,
-    randomnessPending: false,
-    winner: null as string | null,
-  });
+
   // Handlers
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setConfig((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -134,7 +130,7 @@ export default function AdminPanel() {
         .initializeConfig(
           new anchor.BN(config.startTime),
           new anchor.BN(config.endTime),
-          new anchor.BN(config.prize * LAMPORTS_PER_SOL)
+          new anchor.BN(config.prize * (10**TOKEN_MINT_DECIMALS))
         )
         .accounts({
           //@ts-ignore
@@ -260,9 +256,7 @@ export default function AdminPanel() {
           });
           return;
         }
-      }
-
-      setLotteryData((prev) => ({ ...prev, randomnessPending: true }));
+      };
     } catch (err) {
       console.error("Error committing winner:", err);
       toast.error("Failed to commit winner: " + (err as Error).message);
@@ -402,9 +396,9 @@ export default function AdminPanel() {
         >
           <Card>
             <CardHeader>
-              <CardTitle>3. Commit Randomness</CardTitle>
+              <CardTitle>3. Draw Winner</CardTitle>
               <CardDescription>
-                Commit to Switchboard randomness for winner selection.
+                Commit to magicblock randomness for winner selection.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
