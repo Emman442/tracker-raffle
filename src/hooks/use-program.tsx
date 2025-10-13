@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { AnchorProvider, Idl, Program } from "@coral-xyz/anchor";
 import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
-import { TokenLottery, tokenLotteryIDL } from "../../anchor/src";
+import { Raffle, tokenLotteryIDL } from "../../anchor/src";
 
 export const useProgram = () => {
   const wallet = useAnchorWallet();
@@ -13,7 +13,7 @@ export const useProgram = () => {
       commitment: "confirmed",
     });
 
-    const program = new Program<TokenLottery>(tokenLotteryIDL, provider);
+    const program = new Program<Raffle>(tokenLotteryIDL, provider);
 
     return { program, provider };
   }, [connection, wallet]);

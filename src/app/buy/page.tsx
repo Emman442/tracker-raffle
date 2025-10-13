@@ -1,4 +1,9 @@
-import BuyTicketCard from "@/components/BuyTicketCard";
+"use client"
+import dynamic from "next/dynamic";
+
+const BuyTicketCard = dynamic(() => import("@/components/BuyTicketCard"), {
+  ssr: false,
+});
 
 export default function BuyPage() {
   return (

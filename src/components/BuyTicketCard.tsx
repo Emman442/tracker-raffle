@@ -11,11 +11,13 @@ import {
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { motion } from "framer-motion";
 import { Loader2, Ticket } from "lucide-react";
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useProgram } from "@/hooks/use-program";
-import { TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
 import { toast } from "sonner";
+import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
+import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
+import { TOKEN_MINT } from "@/constants/constants";
 
 export default function BuyTicketCard() {
   const { connected } = useWallet();
@@ -69,7 +71,14 @@ export default function BuyTicketCard() {
         .buyTicket()
         .accounts({
           //@ts-ignore
+          payer: publicKey,
+          tokenLottery: lotteryPDA!,
+          // payerTokenAccount: PublicKey,
+          // raffleVaultAccount: PublicKey,
           tokenProgram: TOKEN_PROGRAM_ID,
+          tokenMint: TOKEN_MINT,
+          systemProgram: SystemProgram.programId,
+          rent: SYSVAR_RENT_PUBKEY,
         })
         .rpc();
 
