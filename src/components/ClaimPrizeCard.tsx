@@ -135,6 +135,8 @@ export default function ClaimPrizeCard() {
         .accounts({
           payer: publicKey,
           winnerTokenAccount: destination,
+
+          //@ts-ignore'
           metadata: ticketMetadata,
           destination,
           ticketMint,

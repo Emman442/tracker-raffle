@@ -1,6 +1,5 @@
 export interface RaffleWinners {
     user: string;
-    _id: string;
     amount: number;
 }
 

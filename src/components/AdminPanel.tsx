@@ -16,27 +16,55 @@ import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import * as anchor from "@coral-xyz/anchor";
 import { TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
-import { ADMIN, TOKEN_METADATA_PROGRAM_ID, TOKEN_MINT_DECIMALS } from "@/constants/constants";
+import {
+  ADMIN,
+  TOKEN_METADATA_PROGRAM_ID,
+  TOKEN_MINT_DECIMALS,
+} from "@/constants/constants";
 import { toast } from "sonner";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-
+import { getAssociatedTokenAddressSync } from "@solana/spl-token";
+import { usePostData } from "@/hooks/usePostWinners";
 
 export default function AdminPanel() {
   // Wallet and connection
   const { connected, publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
   const { program, provider } = useProgram();
-
+  const { mutate, isPending } = usePostData();
   // Local states
   const [isInitializing, setIsInitializing] = useState(false);
   const [isInitializingLottery, setIsInitializingLottery] = useState(false);
   const [isCommittingWinner, setIsCommittingWinner] = useState(false);
+  const [lotteryData, setLotteryData] = useState<any>(null);
   const [config, setConfig] = useState({
     startTime: Math.floor(Date.now() / 1000),
     endTime: Math.floor((Date.now() + 86400000) / 1000),
     prize: 0,
   });
 
+  const [tokenLotteryPda] = PublicKey.findProgramAddressSync(
+    [Buffer.from("token_lottery")],
+    program?.programId ?? PublicKey.default
+  );
+
+  useEffect(() => {
+    const fetchLotteryData = async () => {
+      if (!program || !publicKey) return;
+
+      try {
+        // Fetch the TokenLottery account
+        const tokenLottery = await program.account.tokenLottery.fetch(
+          tokenLotteryPda
+        );
+        setLotteryData(tokenLottery);
+      } catch (err) {
+        console.error("Error fetching lottery or token account:", err);
+      }
+    };
+
+    fetchLotteryData();
+  }, [program, publicKey, connection]);
 
   // Handlers
   const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,7 +158,7 @@ export default function AdminPanel() {
         .initializeConfig(
           new anchor.BN(config.startTime),
           new anchor.BN(config.endTime),
-          new anchor.BN(config.prize * (10**TOKEN_MINT_DECIMALS))
+          new anchor.BN(config.prize * 10 ** TOKEN_MINT_DECIMALS)
         )
         .accounts({
           //@ts-ignore
@@ -247,7 +275,7 @@ export default function AdminPanel() {
         const decoded = program.coder.events.decode(encoded);
 
         if (decoded?.name === "winnerCommited") {
-          toast.success("Winnings Claimed Successfully!", {
+          toast.success("Winner Drawn Successfully!", {
             cancel: {
               label: "View Transaction",
               onClick: () =>
@@ -256,7 +284,26 @@ export default function AdminPanel() {
           });
           return;
         }
-      };
+
+        const updated = await program.account.tokenLottery.fetch(
+          tokenLotteryPda
+        );
+        if (updated.winnerChosen) {
+          // Derive the winning ticket mint PDA
+          const [ticketMint] = anchor.web3.PublicKey.findProgramAddressSync(
+            [
+              Buffer.from(
+                new anchor.BN(lotteryData.winner).toArrayLike(Buffer, "le", 8)
+              ),
+            ],
+            program.programId
+          );
+          // Compute user's associated token account (ATA)
+          const ata = getAssociatedTokenAddressSync(ticketMint, publicKey);
+
+          mutate({ user: ata.toString(), amount: lotteryData.potAmount });
+        }
+      }
     } catch (err) {
       console.error("Error committing winner:", err);
       toast.error("Failed to commit winner: " + (err as Error).message);
