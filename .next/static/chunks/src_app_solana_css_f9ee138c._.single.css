@@ -1,0 +1,139 @@
+/* [project]/src/app/solana.css [app-client] (css) */
+.wallet-adapter-button {
+  white-space: nowrap;
+  border-radius: calc(var(--radius)  - 2px);
+  background-color: hsl(var(--primary));
+  height: 2.5rem;
+  color: hsl(var(--primary-foreground));
+  --tw-ring-offset-color: hsl(var(--background));
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem 1rem;
+  font-size: .875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-duration: .15s;
+  transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+  display: inline-flex;
+}
+
+.wallet-adapter-button:hover {
+  background-color: hsl(var(--primary) / .9);
+}
+
+.wallet-adapter-button:focus-visible {
+  outline-offset: 2px;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-color: hsl(var(--ring));
+  --tw-ring-offset-width: 2px;
+  outline: 2px solid #0000;
+}
+
+.wallet-adapter-button:disabled {
+  pointer-events: none;
+  opacity: .5;
+}
+
+.wallet-adapter-button:not([disabled]):hover {
+  background-color: hsl(var(--primary) / .8);
+}
+
+.wallet-adapter-button-trigger {
+  white-space: nowrap;
+  border-radius: calc(var(--radius)  - 2px);
+  background-color: hsl(var(--primary));
+  height: 2.5rem;
+  color: hsl(var(--primary-foreground));
+  --tw-ring-offset-color: hsl(var(--background));
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem 1rem;
+  font-size: .875rem;
+  font-weight: 500;
+  line-height: 1.25rem;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-duration: .15s;
+  transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+  display: inline-flex;
+}
+
+.wallet-adapter-button-trigger:hover {
+  background-color: hsl(var(--primary) / .9);
+}
+
+.wallet-adapter-button-trigger:focus-visible {
+  outline-offset: 2px;
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+  --tw-ring-color: hsl(var(--ring));
+  --tw-ring-offset-width: 2px;
+  outline: 2px solid #0000;
+}
+
+.wallet-adapter-button-trigger:disabled {
+  pointer-events: none;
+  opacity: .5;
+}
+
+.wallet-adapter-button-trigger:not([disabled]):hover {
+  background-color: hsl(var(--primary) / .8);
+}
+
+.wallet-adapter-modal-wrapper {
+  background-color: hsl(var(--background) / .8);
+  --tw-backdrop-blur: blur(4px);
+  backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia);
+}
+
+.wallet-adapter-modal-container {
+  border-radius: var(--radius);
+  border-width: 1px;
+  border-color: hsl(var(--border));
+  background-color: hsl(var(--card));
+  --tw-shadow: 0 10px 15px -3px #0000001a, 0 4px 6px -4px #0000001a;
+  --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
+.wallet-adapter-modal-title {
+  color: hsl(var(--foreground));
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button {
+  background-color: hsl(var(--card));
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button:hover {
+  background-color: hsl(var(--secondary));
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button .wallet-adapter-button-start-icon img {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button .wallet-adapter-button-end-icon {
+  display: none;
+}
+
+.wallet-adapter-modal-list .wallet-adapter-button span {
+  color: hsl(var(--foreground));
+}
+
+.wallet-adapter-modal-button-close {
+  background-color: hsl(var(--secondary));
+  color: hsl(var(--foreground));
+  border-radius: 9999px;
+}
+
+.wallet-adapter-modal-button-close:hover {
+  background-color: hsl(var(--muted));
+}
+
+/*# sourceMappingURL=src_app_solana_css_f9ee138c._.single.css.map*/
