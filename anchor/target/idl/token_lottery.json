@@ -1,5 +1,5 @@
 {
-    "address": "73jxz3YkrV1qbBipp7AKToQMnwv7wMsowHU2dBXGUEVL",
+    "address": "2mWFhDiwUTJw1BUSSbCQStJzMYeXf4FLA3oaPER6GmfY",
     "metadata": {
         "name": "raffle",
         "version": "0.1.0",
@@ -932,11 +932,11 @@
             "args": [
                 {
                     "name": "start_time",
-                    "type": "u64"
+                    "type": "i64"
                 },
                 {
                     "name": "end_time",
-                    "type": "u64"
+                    "type": "i64"
                 },
                 {
                     "name": "price",
@@ -1177,11 +1177,11 @@
             "args": [
                 {
                     "name": "new_start_time",
-                    "type": "u64"
+                    "type": "i64"
                 },
                 {
                     "name": "new_end_time",
-                    "type": "u64"
+                    "type": "i64"
                 },
                 {
                     "name": "new_ticket_price",
@@ -1361,11 +1361,11 @@
                 "fields": [
                     {
                         "name": "start_time",
-                        "type": "u64"
+                        "type": "i64"
                     },
                     {
                         "name": "end_time",
-                        "type": "u64"
+                        "type": "i64"
                     },
                     {
                         "name": "price",
@@ -1417,11 +1417,11 @@
                     },
                     {
                         "name": "start_time",
-                        "type": "u64"
+                        "type": "i64"
                     },
                     {
                         "name": "end_time",
-                        "type": "u64"
+                        "type": "i64"
                     },
                     {
                         "name": "pot_amount",

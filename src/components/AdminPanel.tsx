@@ -25,6 +25,8 @@ import { toast } from "sonner";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 import { usePostData } from "@/hooks/usePostWinners";
+import { calculateTimeLeft } from "../../helpers/calculateTimeLeft";
+import { toLocalDateTimeString } from "../../helpers/toIsoString";
 
 export default function AdminPanel() {
   // Wallet and connection
@@ -195,6 +197,57 @@ export default function AdminPanel() {
       setIsInitializing(false);
     }
   };
+  const handleReInitializeConfig = async () => {
+    if (!program) return;
+    if (!config.startTime || !config.endTime || !config.prize) {
+      toast.error("Please fill in all configuration fields");
+      return;
+    }
+
+    try {
+      setIsInitializing(true);
+
+      const tx = await program.methods
+        .restartLottery(
+          new anchor.BN(config.startTime),
+          new anchor.BN(config.endTime),
+          new anchor.BN(config.prize * 10 ** TOKEN_MINT_DECIMALS)
+        )
+        .accounts({
+          //@ts-ignore
+          masterEdition: masterEdition,
+          metadata: metadata,
+          tokenProgram: TOKEN_PROGRAM_ID,
+        })
+        .rpc();
+
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      const txDetails = await connection.getTransaction(tx, {
+        commitment: "confirmed",
+        maxSupportedTransactionVersion: 0,
+      });
+
+      if (!txDetails) {
+        throw new Error("Transaction not found or not confirmed");
+      }
+
+      toast.success("Configuration initialized successfully!", {
+        cancel: {
+          label: "View Transaction",
+          onClick: () =>
+            window.open(`https://solscan.io/tx/${tx}?cluster=devnet`, "_blank"),
+        },
+      });
+    } catch (err) {
+      console.error("Error Initializing Config:", err);
+      toast.error(
+        "Failed to initialize configuration: " + (err as Error).message
+      );
+    } finally {
+      setIsInitializing(false);
+    }
+  };
 
   const handleInitializeLottery = async () => {
     if (!program) return;
@@ -311,6 +364,10 @@ export default function AdminPanel() {
       setIsCommittingWinner(false);
     }
   };
+  const isLotteryActive =
+    lotteryData &&
+    lotteryData.endTime &&
+    Date.now() / 1000 < lotteryData.endTime.toNumber();
 
   return (
     <div className="container mx-auto p-6">
@@ -338,9 +395,7 @@ export default function AdminPanel() {
                   id="startTime"
                   name="startTime"
                   type="datetime-local"
-                  value={new Date(config.startTime * 1000)
-                    .toISOString()
-                    .slice(0, 16)}
+                  value={toLocalDateTimeString(config.startTime)}
                   onChange={(e) =>
                     setConfig((prev) => ({
                       ...prev,
@@ -358,9 +413,7 @@ export default function AdminPanel() {
                   id="endTime"
                   name="endTime"
                   type="datetime-local"
-                  value={new Date(config.endTime * 1000)
-                    .toISOString()
-                    .slice(0, 16)}
+                  value={toLocalDateTimeString(config.endTime)}
                   onChange={(e) =>
                     setConfig((prev) => ({
                       ...prev,
@@ -384,8 +437,16 @@ export default function AdminPanel() {
                 />
               </div>
               <Button
-                onClick={handleInitializeConfig}
-                disabled={isInitializing}
+                onClick={
+                  lotteryData !== null
+                    ? handleReInitializeConfig
+                    : handleInitializeConfig
+                }
+                disabled={
+                  isInitializing ||
+                  isLotteryActive ||
+                  lotteryData?.winnerChosen === false
+                }
                 className="w-full"
               >
                 {isInitializing ? (
@@ -393,8 +454,10 @@ export default function AdminPanel() {
                     <Loader2 className="animate-spin mr-2" />
                     Initializing...
                   </>
+                ) : isLotteryActive ? (
+                  `Ongoing lottery — please wait...`
                 ) : (
-                  "Initialize Config"
+                  "Initialize New Lottery"
                 )}
               </Button>
             </CardContent>
@@ -457,10 +520,10 @@ export default function AdminPanel() {
                 {isCommittingWinner ? (
                   <>
                     <Loader2 className="animate-spin mr-2" />
-                    Committing...
+                    Drawing winner...
                   </>
                 ) : (
-                  "Commit Randomness"
+                  "Draw Winner"
                 )}
               </Button>
             </CardContent>

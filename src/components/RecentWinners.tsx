@@ -73,7 +73,7 @@ export default function RecentWinners() {
               <TableBody>
                 {recentWinners.map((entry, index) => (
                   <motion.tr
-                    key={entry?._id}
+                    key={index}
                     className="border-b-0"
                     variants={itemVariants}
                   >

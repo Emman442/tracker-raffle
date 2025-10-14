@@ -92,12 +92,22 @@ export default function ClaimPrizeCard() {
     fetchLotteryData();
   }, [program, publicKey, connection]);
 
-  /** 💰 Handle claim winnings */
+  console.log("Lottery Data:", lotteryData);
   const handleClaimWinnings = async () => {
     if (!program || !publicKey) {
       toast.error("Please connect your wallet");
       return;
     }
+      const winningMint = anchor.web3.PublicKey.findProgramAddressSync(
+        [new anchor.BN(lotteryData.winner).toArrayLike(Buffer, "le", 8)],
+        program.programId
+      )[0];
+      console.log("Winning mint", winningMint.toBase58());
+      const winnerRewardAccount = getAssociatedTokenAddressSync(
+        TOKEN_MINT, // your reward token mint (TRACKER)
+        publicKey
+      );
+
 
     setIsClaimingPrize(true);
     try {
@@ -134,8 +144,7 @@ export default function ClaimPrizeCard() {
         .claimWinnings()
         .accounts({
           payer: publicKey,
-          winnerTokenAccount: destination,
-
+          winnerTokenAccount: winnerRewardAccount,
           //@ts-ignore'
           metadata: ticketMetadata,
           destination,
@@ -218,7 +227,7 @@ export default function ClaimPrizeCard() {
                 <Loader2 className="animate-spin" />
               ) : (
                 `Claim ${(
-                  Number(lotteryData.potAmount) / TOKEN_MINT_DECIMALS
+                  Number(lotteryData.potAmount.toNumber()) / (10**TOKEN_MINT_DECIMALS)
                 ).toFixed(2)} TRACKER`
               )}
             </Button>
@@ -252,9 +261,9 @@ export default function ClaimPrizeCard() {
             The total prize pool is{" "}
             <span className="font-bold text-primary">
               {lotteryData
-                ? (Number(lotteryData.potAmount) / LAMPORTS_PER_SOL).toFixed(2)
+                ? (Number(lotteryData.potAmount) / (10**TOKEN_MINT_DECIMALS)).toFixed(2)
                 : "--"}{" "}
-              SOL
+              TRACKER
             </span>
             .
           </CardDescription>

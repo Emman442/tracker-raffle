@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/raffle.json`.
  */
 export type Raffle = {
-    "address": "73jxz3YkrV1qbBipp7AKToQMnwv7wMsowHU2dBXGUEVL",
+    "address": "2mWFhDiwUTJw1BUSSbCQStJzMYeXf4FLA3oaPER6GmfY",
     "metadata": {
         "name": "raffle",
         "version": "0.1.0",
@@ -938,11 +938,11 @@ export type Raffle = {
             "args": [
                 {
                     "name": "startTime",
-                    "type": "u64"
+                    "type": "i64"
                 },
                 {
                     "name": "endTime",
-                    "type": "u64"
+                    "type": "i64"
                 },
                 {
                     "name": "price",
@@ -1183,11 +1183,11 @@ export type Raffle = {
             "args": [
                 {
                     "name": "newStartTime",
-                    "type": "u64"
+                    "type": "i64"
                 },
                 {
                     "name": "newEndTime",
-                    "type": "u64"
+                    "type": "i64"
                 },
                 {
                     "name": "newTicketPrice",
@@ -1367,11 +1367,11 @@ export type Raffle = {
                 "fields": [
                     {
                         "name": "startTime",
-                        "type": "u64"
+                        "type": "i64"
                     },
                     {
                         "name": "endTime",
-                        "type": "u64"
+                        "type": "i64"
                     },
                     {
                         "name": "price",
@@ -1423,11 +1423,11 @@ export type Raffle = {
                     },
                     {
                         "name": "startTime",
-                        "type": "u64"
+                        "type": "i64"
                     },
                     {
                         "name": "endTime",
-                        "type": "u64"
+                        "type": "i64"
                     },
                     {
                         "name": "potAmount",

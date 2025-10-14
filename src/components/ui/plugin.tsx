@@ -1,22 +1,20 @@
-// "use client";
+"use client";
 
-// import React, { useEffect } from "react";
-// import "@jup-ag/plugin/css";
+import React, { useEffect } from "react";
 
-// export default function PluginComponent() {
-//   useEffect(() => {
-//     import("@jup-ag/plugin").then((mod) => {
-//       const { init } = mod;
-//       init({
-//         displayMode: "widget",
-//         integratedTargetId: "jupiter-plugin",
-//       });
-//     });
-//   }, []);
+export default function PluginComponent() {
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.Jupiter.init({
+        displayMode: "widget",
+        integratedTargetId: "jupiter-plugin",
+      });
+    }
+  }, []);
 
-//   return (
-//     <div>
-//       <div id="jupiter-plugin" />
-//     </div>
-//   );
-// }
+  return (
+    <div>
+      <div id="jupiter-plugin" />
+    </div>
+  );
+}

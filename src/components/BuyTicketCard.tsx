@@ -11,21 +11,33 @@ import {
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { motion } from "framer-motion";
 import { Loader2, Ticket } from "lucide-react";
-import { LAMPORTS_PER_SOL, PublicKey, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
+import {
+  LAMPORTS_PER_SOL,
+  PublicKey,
+  SystemProgram,
+  SYSVAR_RENT_PUBKEY,
+} from "@solana/web3.js";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useProgram } from "@/hooks/use-program";
 import { toast } from "sonner";
-import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
-import { TOKEN_MINT } from "@/constants/constants";
+import {
+  getAssociatedTokenAddressSync,
+  TOKEN_PROGRAM_ID,
+} from "@solana/spl-token";
+import { TOKEN_MINT, TOKEN_MINT_DECIMALS } from "@/constants/constants";
 
 export default function BuyTicketCard() {
-  const { connected } = useWallet();
+  const { connected, publicKey } = useWallet();
   const [currentLottery, setCurrentLottery] = useState<any | null>(null);
   const [isBuyingTicket, setIsBuyingTicket] = useState(false);
   const { connection } = useConnection();
 
   const { program, provider } = useProgram();
+  const payerTokenAccount = getAssociatedTokenAddressSync(
+    TOKEN_PROGRAM_ID,
+  publicKey!,
+    true
+  );
 
   const lotteryPDA = useMemo(() => {
     if (!program) return null;
@@ -60,20 +72,33 @@ export default function BuyTicketCard() {
     hidden: { opacity: 0, scale: 0.95 },
     visible: { opacity: 1, scale: 1 },
   };
-  console.log(currentLottery);
+   const start = new Date(currentLottery?.startTime.toNumber() * 1000);
+   const end = new Date(currentLottery?.endTime.toNumber() * 1000);
+   const now = new Date();
+
+   console.log("🕒 Lottery Timing Info:");
+   console.log("Start Time:", start.toLocaleString());
+   console.log("End Time:", end.toLocaleString());
+   console.log("Current Time:", now.toLocaleString());
+   console.log("Is Active:", now >= start && now <= end);
 
   const handleBuyTicket = async () => {
-    if (!program) return;
+    if (!program || !provider) return;
     try {
       setIsBuyingTicket(true);
-
+        const payerTokenAccount = getAssociatedTokenAddressSync(
+          TOKEN_MINT,
+          provider?.wallet.publicKey!,
+          true
+        );
+        console.log("Payer token acct", payerTokenAccount)
       const tx = await program.methods
         .buyTicket()
         .accounts({
+          payer: provider?.wallet.publicKey,
           //@ts-ignore
-          payer: publicKey,
           tokenLottery: lotteryPDA!,
-          // payerTokenAccount: PublicKey,
+          payerTokenAccount: payerTokenAccount,
           // raffleVaultAccount: PublicKey,
           tokenProgram: TOKEN_PROGRAM_ID,
           tokenMint: TOKEN_MINT,
@@ -137,8 +162,9 @@ export default function BuyTicketCard() {
           <CardDescription>
             Current ticket price is{" "}
             <span className="font-bold text-primary">
-              {currentLottery?.ticketPrice.toNumber() / LAMPORTS_PER_SOL || 0}{" "}
-              SOL
+              {currentLottery?.ticketPrice.toNumber() /
+                10 ** TOKEN_MINT_DECIMALS || 0}{" "}
+              TRACKER
             </span>
           </CardDescription>
         </CardHeader>

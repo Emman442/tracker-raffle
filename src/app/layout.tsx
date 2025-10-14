@@ -1,13 +1,14 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import './solana.css';
-import { cn } from '@/lib/utils';
-import AppWalletProvider  from '@/components/solana/WalletProvider';
-// import PluginComponent from "@/components/ui/plugin";
-import {Toaster} from "sonner"
-import Header from '@/components/layout/Header';
-import { DotPattern } from '@/components/ui/DotPattern';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import "./solana.css";
+import { cn } from "@/lib/utils";
+import AppWalletProvider from "@/components/solana/WalletProvider";
+import PluginComponent from "@/components/ui/plugin";
+import { Toaster } from "sonner";
+import Header from "@/components/layout/Header";
+import { DotPattern } from "@/components/ui/DotPattern";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "Lucky Seeker",
@@ -32,6 +33,13 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&display=swap"
           rel="stylesheet"
         />
+
+        <Script
+          src="https://plugin.jup.ag/plugin-v1.js"
+          strategy="beforeInteractive"
+          data-preload
+          defer
+        />
       </head>
       <body className={cn("font-body antialiased min-h-screen bg-background")}>
         <AppWalletProvider>
@@ -40,8 +48,8 @@ export default function RootLayout({
             <Header />
             <main className="flex-1">{children}</main>
           </div>
-          <Toaster position='bottom-right' />
-          {/* <PluginComponent /> */}
+          <Toaster position="bottom-right" />
+          <PluginComponent />
         </AppWalletProvider>
       </body>
     </html>
