@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/raffle.json`.
  */
 export type Raffle = {
-    "address": "2mWFhDiwUTJw1BUSSbCQStJzMYeXf4FLA3oaPER6GmfY",
+    "address": "BQuBEeVWhtjKUSkmGPEoUo5s3zPnukrFQaFE9FTgFCdN",
     "metadata": {
         "name": "raffle",
         "version": "0.1.0",
@@ -126,6 +126,11 @@ export type Raffle = {
                     "writable": true,
                     "pda": {
                         "seeds": [
+                            {
+                                "kind": "account",
+                                "path": "token_lottery.round_id",
+                                "account": "tokenLottery"
+                            },
                             {
                                 "kind": "account",
                                 "path": "token_lottery.total_tickets",
@@ -375,6 +380,11 @@ export type Raffle = {
                                     110,
                                     116
                                 ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "token_lottery.round_id",
+                                "account": "tokenLottery"
                             }
                         ]
                     }
@@ -490,10 +500,6 @@ export type Raffle = {
             "accounts": [
                 {
                     "name": "vrfProgramIdentity",
-                    "docs": [
-                        "This check ensure that the vrf_program_identity (which is a PDA) is a singer",
-                        "enforcing the callback is executed by the VRF program trough CPI"
-                    ],
                     "signer": true,
                     "address": "9irBy75QS2BN81FUgXuHcjqceJJRuc9oDkAe8TKVvvAw"
                 },
@@ -646,6 +652,11 @@ export type Raffle = {
                                     110,
                                     116
                                 ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "token_lottery.round_id",
+                                "account": "tokenLottery"
                             }
                         ]
                     }
@@ -654,6 +665,11 @@ export type Raffle = {
                     "name": "ticketMint",
                     "pda": {
                         "seeds": [
+                            {
+                                "kind": "account",
+                                "path": "token_lottery.round_id",
+                                "account": "tokenLottery"
+                            },
                             {
                                 "kind": "account",
                                 "path": "token_lottery.winner",
@@ -992,6 +1008,11 @@ export type Raffle = {
                                     110,
                                     116
                                 ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "token_lottery.round_id",
+                                "account": "tokenLottery"
                             }
                         ]
                     }
@@ -1002,38 +1023,88 @@ export type Raffle = {
                     "pda": {
                         "seeds": [
                             {
+                                "kind": "account",
+                                "path": "collectionMint"
+                            },
+                            {
                                 "kind": "const",
                                 "value": [
-                                    99,
-                                    111,
-                                    108,
-                                    108,
+                                    6,
+                                    221,
+                                    246,
+                                    225,
+                                    215,
                                     101,
-                                    99,
-                                    116,
-                                    105,
-                                    111,
-                                    110,
+                                    161,
+                                    147,
+                                    217,
+                                    203,
+                                    225,
+                                    70,
+                                    206,
+                                    235,
+                                    121,
+                                    172,
+                                    28,
+                                    180,
+                                    133,
+                                    237,
                                     95,
-                                    97,
-                                    115,
-                                    115,
-                                    111,
-                                    99,
-                                    105,
-                                    97,
-                                    116,
-                                    101,
-                                    100,
-                                    95,
-                                    116,
-                                    111,
-                                    107,
-                                    101,
-                                    110
+                                    91,
+                                    55,
+                                    145,
+                                    58,
+                                    140,
+                                    245,
+                                    133,
+                                    126,
+                                    255,
+                                    0,
+                                    169
                                 ]
+                            },
+                            {
+                                "kind": "account",
+                                "path": "collectionMint"
                             }
-                        ]
+                        ],
+                        "program": {
+                            "kind": "const",
+                            "value": [
+                                140,
+                                151,
+                                37,
+                                143,
+                                78,
+                                36,
+                                137,
+                                241,
+                                187,
+                                61,
+                                16,
+                                41,
+                                20,
+                                142,
+                                13,
+                                131,
+                                11,
+                                90,
+                                19,
+                                153,
+                                218,
+                                255,
+                                16,
+                                132,
+                                4,
+                                142,
+                                123,
+                                216,
+                                219,
+                                233,
+                                248,
+                                89
+                            ]
+                        }
                     }
                 },
                 {
@@ -1067,6 +1138,31 @@ export type Raffle = {
                             "kind": "account",
                             "path": "tokenMetadataProgram"
                         }
+                    }
+                },
+                {
+                    "name": "tokenLottery",
+                    "pda": {
+                        "seeds": [
+                            {
+                                "kind": "const",
+                                "value": [
+                                    116,
+                                    111,
+                                    107,
+                                    101,
+                                    110,
+                                    95,
+                                    108,
+                                    111,
+                                    116,
+                                    116,
+                                    101,
+                                    114,
+                                    121
+                                ]
+                            }
+                        ]
                     }
                 },
                 {
@@ -1119,7 +1215,7 @@ export type Raffle = {
                     "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
                 },
                 {
-                    "name": "associatedTokenAccount",
+                    "name": "associatedTokenProgram",
                     "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
                 },
                 {
@@ -1414,6 +1510,10 @@ export type Raffle = {
                 "kind": "struct",
                 "fields": [
                     {
+                        "name": "roundId",
+                        "type": "u64"
+                    },
+                    {
                         "name": "winner",
                         "type": "u64"
                     },
@@ -1500,7 +1600,7 @@ export type Raffle = {
         {
             "name": "url",
             "type": "string",
-            "value": "\"https://raw.githubusercontent.com/Emman442/Quiz-application-with-leaderboard-feature/main/mpl.json\\n\""
+            "value": "\"https://raw.githubusercontent.com/Emman442/Quiz-application-with-leaderboard-feature/main/mpl.json\""
         }
     ]
 };
