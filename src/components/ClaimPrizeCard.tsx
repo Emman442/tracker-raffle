@@ -16,7 +16,11 @@ import { useEffect, useState } from "react";
 import { useProgram } from "@/hooks/use-program";
 import * as anchor from "@coral-xyz/anchor";
 import { toast } from "sonner";
-import { TOKEN_METADATA_PROGRAM_ID, TOKEN_MINT, TOKEN_MINT_DECIMALS } from "@/constants/constants";
+import {
+  TOKEN_METADATA_PROGRAM_ID,
+  TOKEN_MINT,
+  TOKEN_MINT_DECIMALS,
+} from "@/constants/constants";
 import {
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
@@ -57,13 +61,11 @@ export default function ClaimPrizeCard() {
           setIsWinner(false);
           return;
         }
-
         // Derive the winning ticket mint PDA
         const [ticketMint] = anchor.web3.PublicKey.findProgramAddressSync(
           [
-            Buffer.from(
-              new anchor.BN(tokenLottery.winner).toArrayLike(Buffer, "le", 8)
-            ),
+            new anchor.BN(tokenLottery.roundId).toArrayLike(Buffer, "le", 8),
+            new anchor.BN(tokenLottery.winner).toArrayLike(Buffer, "le", 8),
           ],
           program.programId
         );
@@ -98,16 +100,19 @@ export default function ClaimPrizeCard() {
       toast.error("Please connect your wallet");
       return;
     }
-      const winningMint = anchor.web3.PublicKey.findProgramAddressSync(
-        [new anchor.BN(lotteryData.winner).toArrayLike(Buffer, "le", 8)],
-        program.programId
-      )[0];
-      console.log("Winning mint", winningMint.toBase58());
-      const winnerRewardAccount = getAssociatedTokenAddressSync(
-        TOKEN_MINT, // your reward token mint (TRACKER)
-        publicKey
-      );
+    const winningMint = anchor.web3.PublicKey.findProgramAddressSync(
+      [
+        new anchor.BN(lotteryData.roundId).toArrayLike(Buffer, "le", 8),
 
+        new anchor.BN(lotteryData.winner).toArrayLike(Buffer, "le", 8),
+      ],
+      program.programId
+    )[0];
+    console.log("Winning mint", winningMint.toBase58());
+    const winnerRewardAccount = getAssociatedTokenAddressSync(
+      TOKEN_MINT, // your reward token mint (TRACKER)
+      publicKey
+    );
 
     setIsClaimingPrize(true);
     try {
@@ -117,9 +122,8 @@ export default function ClaimPrizeCard() {
 
       const [ticketMint] = anchor.web3.PublicKey.findProgramAddressSync(
         [
-          Buffer.from(
-            new anchor.BN(tokenLottery.winner).toArrayLike(Buffer, "le", 8)
-          ),
+          new anchor.BN(tokenLottery.roundId).toArrayLike(Buffer, "le", 8),
+          new anchor.BN(tokenLottery.winner).toArrayLike(Buffer, "le", 8),
         ],
         program.programId
       );
@@ -227,7 +231,8 @@ export default function ClaimPrizeCard() {
                 <Loader2 className="animate-spin" />
               ) : (
                 `Claim ${(
-                  Number(lotteryData.potAmount.toNumber()) / (10**TOKEN_MINT_DECIMALS)
+                  Number(lotteryData.potAmount.toNumber()) /
+                  10 ** TOKEN_MINT_DECIMALS
                 ).toFixed(2)} TRACKER`
               )}
             </Button>
@@ -261,7 +266,10 @@ export default function ClaimPrizeCard() {
             The total prize pool is{" "}
             <span className="font-bold text-primary">
               {lotteryData
-                ? (Number(lotteryData.potAmount) / (10**TOKEN_MINT_DECIMALS)).toFixed(2)
+                ? (
+                    Number(lotteryData.potAmount) /
+                    10 ** TOKEN_MINT_DECIMALS
+                  ).toFixed(2)
                 : "--"}{" "}
               TRACKER
             </span>

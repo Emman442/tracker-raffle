@@ -5,11 +5,10 @@ import { addWinners } from "../../services/postWinners";
 
 export function usePostData() {
   const queryClient = useQueryClient();
-
+   console.log("usePostWinners called with args:");
   const { mutate, isPending } = useMutation({
     mutationFn: addWinners,
     onSuccess: () => {
-      // refresh activity table after adding new one
       queryClient.invalidateQueries({ queryKey: ["rafflewinners"] });
     },
   });

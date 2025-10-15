@@ -6,6 +6,7 @@ import { Banknote, Calendar, Clock, Ticket } from "lucide-react";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useProgram } from "@/hooks/use-program";
+import { TOKEN_MINT_DECIMALS } from "@/constants/constants";
 
 const InfoCard = ({
   icon,
@@ -145,7 +146,7 @@ export default function LotteryStatus() {
       <InfoCard
         icon={<Banknote className="h-4 w-4 text-muted-foreground" />}
         title="Prize Pool"
-        value={currentLottery?.potAmount.toNumber() / LAMPORTS_PER_SOL || 0}
+        value={currentLottery?.potAmount.toNumber() / (10**TOKEN_MINT_DECIMALS) || 0}
         unit="TRACKER"
       />
       <InfoCard
